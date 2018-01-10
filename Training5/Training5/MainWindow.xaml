@@ -3,10 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Training5"
-        mc:Ignorable="d"
         DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
+        xmlns:Converter="clr-namespace:Training5.Converter"
+        mc:Ignorable="d"
+        
         Title="Training5 by Sascha Böck" Height="350" Width="525">
+
+    <Window.Resources>
+        <Converter:BoolToColorConverter x:Key="BoolToColorConverter"/>
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="85*"/>
@@ -15,17 +21,33 @@
 
         <TabControl HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="228" Width="498" BorderBrush="Black">
             <TabItem Header="Data" Width="100">
-                <Label Content="data"/>
+                <ItemsControl ItemsSource="{Binding Buttons}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="2">
+                                <Button Margin="10,0,0,0" Content="toggle" Width="40" CommandParameter="{Binding}" Command="{Binding DataContext.ToggleBtnClicked, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}}"/>
+                                <Ellipse Margin="10,0,0,0" Width="15" Height="15" Fill="{Binding State, Converter={StaticResource BoolToColorConverter}}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </TabItem>
             <TabItem Header="History" Width="100">
                 <Grid>
-                    <Label Content="history"/>
+                    <DataGrid ItemsSource="{Binding History}" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Id}" ClipboardContentBinding="{x:Null}" Header="ID"/>
+                            <DataGridTextColumn Binding="{Binding State}" ClipboardContentBinding="{x:Null}" Header="State"/>
+                            <DataGridTextColumn Binding="{Binding Timestamp.Now, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Time"/>
+                            <DataGridTextColumn Binding="{Binding Sender}" ClipboardContentBinding="{x:Null}" Header="Sender"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </TabItem>
         </TabControl>
 
-        <Button Content="Listen" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,27,101.4,26.8" Width="65"/>
-        <Button Content="Connect" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,27,20.4,26.8" Width="65"/>
+        <Button Content="Listen" Command="{Binding ListenBtnClicked}" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,27,101.4,26.8" Width="65"/>
+        <Button Content="Connect" Command="{Binding ConnectBtnClicked}" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,27,31.4,26.8" Width="65"/>
 
     </Grid>
 </Window>

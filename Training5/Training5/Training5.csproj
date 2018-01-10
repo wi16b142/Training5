@@ -69,6 +69,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Com\Communication.cs" />
+    <Compile Include="Converter\BoolToColorConverter.cs" />
+    <Compile Include="ViewModel\ButtonVM.cs" />
+    <Compile Include="ViewModel\HistoryVM.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="MainWindow.xaml">
