@@ -4,11 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
-        xmlns:Converter="clr-namespace:Training5.Converter"
+        xmlns:Converter="clr-namespace:Training5.Converter" 
         mc:Ignorable="d"
-        
         Title="Training5 by Sascha Böck" Height="350" Width="525">
+    <!--add the locator as static resource to bind datacontext to the mainvm
+        addthe namespace of the converter-->
 
+    <!--In case of using converters, you have to set it as windo.resource and define a key for it to use it in the xaml code-->
     <Window.Resources>
         <Converter:BoolToColorConverter x:Key="BoolToColorConverter"/>
     </Window.Resources>
@@ -25,7 +27,12 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Margin="2">
+                                <!--Set a command parameter to hand over itself as parameter => jsut use binding-->
+                                <!--If you have dynamic buttons created you have to set DataContext. before the property path of the relaycommand-->
+                                <!--after binding to the relaycommand, set the relativesource to find the ancestor of a specified ancestor type-->
+                                <!--in this case set RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}}"-->
                                 <Button Margin="10,0,0,0" Content="toggle" Width="40" CommandParameter="{Binding}" Command="{Binding DataContext.ToggleBtnClicked, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}}"/>
+                                <!--Bind the fill property of the ellipse to the state and convert this state (true or false) to a color (green or red) -->
                                 <Ellipse Margin="10,0,0,0" Width="15" Height="15" Fill="{Binding State, Converter={StaticResource BoolToColorConverter}}" />
                             </StackPanel>
                         </DataTemplate>

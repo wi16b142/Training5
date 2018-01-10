@@ -1,67 +1,64 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Training5.Com
 {
     public class Communication
     {
-        const int port = 10100;
-        Socket serverSocket, clientSocket;
-        Action<byte[], string> Informer;
-        bool isServer;
-        byte[] buffer = new byte[512];
-        string sender;
+        const int port = 10100; //port for connection
+        Socket serverSocket, clientSocket; //sockets for client and server connection
+        Action<byte[], string> Informer; //informs the mainVM about a pending gui update with the received buffer and the name of the sender as parameter
+        bool isServer; //flag to check if you are server or not. necessary to set the correct name of the sender
+        byte[] buffer = new byte[512]; //buffer for sending and receiving data
+        string sender; //holding the senders name
 
         public Communication(Action<byte[], string> informer, bool isServer)
         {
-            Informer = informer;
-            this.isServer = isServer;
+            Informer = informer; //delegate for the method informing the mainVM about gui updates
+            this.isServer = isServer; //set flag if server or client
 
-            if (isServer)
+            if (isServer) //if you are a server
             {
-                serverSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                serverSocket.Bind(new IPEndPoint(IPAddress.Loopback, port));
-                serverSocket.Listen(1);
-                Task.Factory.StartNew(StartAccepting);
+                serverSocket = new Socket(SocketType.Stream, ProtocolType.Tcp); //create socket
+                serverSocket.Bind(new IPEndPoint(IPAddress.Loopback, port)); //bind socket to nic
+                serverSocket.Listen(1); //listen for one connection at most
+                Task.Factory.StartNew(StartAccepting); //start to accept a client
             }
-            else
+            else //if you are a client
             {
-                TcpClient client = new TcpClient();
-                client.Connect(IPAddress.Loopback, port);
-                clientSocket = client.Client;
-                Task.Factory.StartNew(Receive);
+                TcpClient client = new TcpClient(); //create a new tcp client
+                client.Connect(IPAddress.Loopback, port); //connect client to the server ip address
+                clientSocket = client.Client; //store the tcp client in the clientsocket
+                Task.Factory.StartNew(Receive); //beginn receiving
             }
         }
 
         private void StartAccepting()
         {
-            clientSocket = serverSocket.Accept();
-            Task.Factory.StartNew(Receive);
+            clientSocket = serverSocket.Accept(); //accet 1 client and save the accepted socket into cliensocket
+            Task.Factory.StartNew(Receive); //when the connection is established, start receiving messages from the client
         }
 
         private void Receive()
         {
-            while (true)
+            while (true) //infinite loop
             {
-                clientSocket.Receive(buffer);
-                if (isServer)
+                clientSocket.Receive(buffer); //receive data from the clientsocket into the byte buffer
+                if (isServer) //if you are the server
                 {
-                    sender = "client";
+                    sender = "client"; //you can only receive from the client, so the sender is the client
                 }
-                else sender = "server";
+                else sender = "server"; //otherwise you are the client and only receive from the server
 
-                Informer(buffer,sender);
+                Informer(buffer,sender); //after that, inform the mainVM which updates the gui with the new state and the senders name
             }
         }
 
         public void Send(byte[] data)
         {
-            clientSocket.Send(data);
+            clientSocket.Send(data); //this sends the give data to the counterpart of the connection
         }
     }
 }
